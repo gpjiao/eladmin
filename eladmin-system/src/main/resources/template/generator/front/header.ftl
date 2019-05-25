@@ -49,7 +49,7 @@ export default {
   methods: {
     checkPermission<#if hasQuery>,
     toQuery() {
-      this.$parent.page = 0
+      this.$parent.page = 1
       this.$parent.init()
     }</#if>
   }

@@ -1,6 +1,6 @@
 package me.zhengjie.modules.security.security;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,65 +11,76 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 /**
- * @author jie
+ * @author
  * @date 2018-11-23
  */
 @Getter
 @AllArgsConstructor
-public class JwtUser implements UserDetails {
-
-    @JsonIgnore
+public class JwtUser implements UserDetails
+{
+    /**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 1L;
+    
+    @JSONField(serialize = false)
     private final Long id;
-
+    
     private final String username;
-
-    @JsonIgnore
+    
+    @JSONField(serialize = false)
     private final String password;
-
+    
     private final String avatar;
-
+    
     private final String email;
-
-    @JsonIgnore
+    
+    @JSONField(serialize = false)
     private final Collection<? extends GrantedAuthority> authorities;
-
+    
     private final boolean enabled;
-
+    
     private Timestamp createTime;
-
-    @JsonIgnore
+    
+    @JSONField(serialize = false)
     private final Date lastPasswordResetDate;
-
-    @JsonIgnore
+    
     @Override
-    public boolean isAccountNonExpired() {
+    @JSONField(serialize = false)
+    public boolean isAccountNonExpired()
+    {
         return true;
     }
-
-    @JsonIgnore
+    
     @Override
-    public boolean isAccountNonLocked() {
+    @JSONField(serialize = false)
+    public boolean isAccountNonLocked()
+    {
         return true;
     }
-
-    @JsonIgnore
+    
     @Override
-    public boolean isCredentialsNonExpired() {
+    @JSONField(serialize = false)
+    public boolean isCredentialsNonExpired()
+    {
         return true;
     }
-
-    @JsonIgnore
+    
     @Override
-    public String getPassword() {
+    @JSONField(serialize = false)
+    public String getPassword()
+    {
         return password;
     }
-
+    
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled()
+    {
         return enabled;
     }
-
-    public Collection getRoles() {
+    
+    public Collection<?> getRoles()
+    {
         return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
     }
 }

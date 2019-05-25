@@ -45,7 +45,7 @@ public class AuthenticationController {
      */
     @Log("用户登录")
     @PostMapping(value = "${jwt.auth.path}")
-    public ResponseEntity login(@Validated @RequestBody AuthorizationUser authorizationUser){
+    public ResponseEntity<AuthenticationInfo> login(@Validated @RequestBody AuthorizationUser authorizationUser){
 
         final JwtUser jwtUser = (JwtUser) userDetailsService.loadUserByUsername(authorizationUser.getUsername());
 
@@ -69,7 +69,7 @@ public class AuthenticationController {
      * @return
      */
     @GetMapping(value = "${jwt.auth.account}")
-    public ResponseEntity getUserInfo(){
+    public ResponseEntity<JwtUser> getUserInfo(){
         UserDetails userDetails = SecurityContextHolder.getUserDetails();
         JwtUser jwtUser = (JwtUser)userDetailsService.loadUserByUsername(userDetails.getUsername());
         return ResponseEntity.ok(jwtUser);

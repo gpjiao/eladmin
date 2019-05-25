@@ -75,7 +75,7 @@ export default {
   </#if>
     checkPermission,
     beforeInit() {
-      this.url = 'api/${changeClassName}'
+      this.url = '${moduleName}/${changeClassName}'
       const sort = 'id,desc'
       this.params = { page: this.page, size: this.size, sort: sort }
       <#if hasQuery>

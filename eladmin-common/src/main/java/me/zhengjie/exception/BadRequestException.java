@@ -3,8 +3,6 @@ package me.zhengjie.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 /**
  * @author jie
  * @date 2018-11-23
@@ -13,7 +11,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @Getter
 public class BadRequestException extends RuntimeException{
 
-    private Integer status = BAD_REQUEST.value();
+    private Integer status = HttpStatus.BAD_REQUEST.value();
 
     public BadRequestException(String msg){
         super(msg);

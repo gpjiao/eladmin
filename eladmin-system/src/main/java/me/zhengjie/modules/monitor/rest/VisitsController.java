@@ -1,39 +1,48 @@
 package me.zhengjie.modules.monitor.rest;
 
-import me.zhengjie.modules.monitor.service.VisitsService;
-import me.zhengjie.utils.RequestHolder;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import me.zhengjie.http.ApiResponse;
+import me.zhengjie.modules.monitor.service.VisitsService;
+import me.zhengjie.utils.RequestHolder;
+
 /**
- * @author jie
+ * @author
  * @date 2018-12-13
  */
 @RestController
-@RequestMapping("api")
-public class VisitsController {
-
+@RequestMapping("admin")
+public class VisitsController
+{
+    
     @Autowired
     private VisitsService visitsService;
-
+    
     @PostMapping(value = "/visits")
-    public ResponseEntity create(){
+    public ApiResponse<?> create()
+    {
         visitsService.count(RequestHolder.getHttpServletRequest());
-        return new ResponseEntity(HttpStatus.CREATED);
+        return ApiResponse.code(HttpStatus.CREATED).i18n("msg.operation.add.success").build();
     }
-
+    
     @GetMapping(value = "/visits")
-    public ResponseEntity get(){
-        return new ResponseEntity(visitsService.get(),HttpStatus.OK);
+    public ApiResponse<Map<String, Object>> get()
+    {
+        Map<String, Object> data = visitsService.get();
+        return ApiResponse.code(HttpStatus.CREATED).i18n("msg.operation.add.success").body(data);
     }
-
+    
     @GetMapping(value = "/visits/chartData")
-    public ResponseEntity getChartData(){
-        return new ResponseEntity(visitsService.getChartData(),HttpStatus.OK);
+    public ApiResponse<Map<String, Object>> getChartData()
+    {
+        Map<String, Object> data = visitsService.getChartData();
+        return ApiResponse.code(HttpStatus.OK).i18n("msg.operation.success").body(data);
     }
 }

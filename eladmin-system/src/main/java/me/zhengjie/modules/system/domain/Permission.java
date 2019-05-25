@@ -1,62 +1,61 @@
 package me.zhengjie.modules.system.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * @author jie
+ * @author
  * @date 2018-12-03
  */
-@Entity
 @Getter
 @Setter
-@Table(name = "permission")
-public class Permission implements Serializable{
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@NotNull(groups = {Update.class})
-	private Long id;
-
-	@NotBlank
-	private String name;
-
-	/**
-	 * 上级类目
-	 */
-	@NotNull
-	@Column(name = "pid",nullable = false)
-	private Long pid;
-
-	@NotBlank
-	private String alias;
-
-	@JsonIgnore
-	@ManyToMany(mappedBy = "permissions")
-	private Set<Role> roles;
-
-	@CreationTimestamp
-	@Column(name = "create_time")
-	private Timestamp createTime;
-
-	@Override
-	public String toString() {
-		return "Permission{" +
-				"id=" + id +
-				", name='" + name + '\'' +
-				", pid=" + pid +
-				", alias='" + alias + '\'' +
-				", createTime=" + createTime +
-				'}';
-	}
-
-	public interface Update{}
+@TableName("sys_permission")
+public class Permission implements Serializable
+{
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    
+    @NotNull(groups = {Update.class})
+    private Long id;
+    
+    @NotBlank
+    private String name;
+    
+    /**
+     * 上级类目
+     */
+    @NotNull
+    private Long pid;
+    
+    @NotBlank
+    private String alias;
+    
+    @TableField("create_time")
+    private Timestamp createTime = Timestamp.valueOf(LocalDateTime.now());
+    
+    @JSONField(serialize = false)
+    @TableField(exist = false)
+    private Set<Role> roles;
+    
+    @Override
+    public String toString()
+    {
+        return "Permission{" + "id=" + id + ", name='" + name + '\'' + ", pid=" + pid + ", alias='" + alias + '\''
+            + ", createTime=" + createTime + '}';
+    }
+    
+    public interface Update
+    {
+    }
 }

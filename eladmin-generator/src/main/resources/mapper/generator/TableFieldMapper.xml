@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.zhengjie.mapper.TableFieldDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="me.zhengjie.domain.vo.TableField">
+        <result column="column_name" property="columnName" />
+        <result column="data_type" property="dataType" />
+        <result column="column_comment" property="columnComment" />
+        <result column="column_key" property="columnKey" />
+    </resultMap>
+
+    <select id="list" resultMap="BaseResultMap">
+       select column_name, data_type, column_comment, column_key
+       from information_schema.columns
+       where table_name = #{tableName}
+       and table_schema = (select database())
+       order by ordinal_position
+    </select>
+
+</mapper>

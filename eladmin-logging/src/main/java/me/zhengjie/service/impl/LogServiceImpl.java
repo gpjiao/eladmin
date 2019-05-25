@@ -2,11 +2,12 @@ package me.zhengjie.service.impl;
 
 import cn.hutool.json.JSONObject;
 import me.zhengjie.domain.Log;
-import me.zhengjie.repository.LogRepository;
+import me.zhengjie.mapper.LogDao;
 import me.zhengjie.service.LogService;
 import me.zhengjie.utils.RequestHolder;
 import me.zhengjie.utils.SecurityContextHolder;
 import me.zhengjie.utils.StringUtils;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
@@ -27,8 +33,8 @@ import java.lang.reflect.Method;
 public class LogServiceImpl implements LogService {
 
     @Autowired
-    private LogRepository logRepository;
-
+    private LogDao logDao;
+    
     @Value("${jwt.header}")
     private String tokenHeader;
 
@@ -83,6 +89,22 @@ public class LogServiceImpl implements LogService {
         log.setMethod(methodName);
         log.setUsername(username);
         log.setParams(params + " }");
-        logRepository.save(log);
+        logDao.insert(log);
+    }
+    
+    @Override
+    public IPage<Log> findAll(int pageNum, int pageSize, Log log)
+    {
+        QueryWrapper<Log> wrapper = new QueryWrapper<Log>();
+        if (StringUtils.isNotBlank(log.getUsername()))
+        {
+            wrapper.like("username", log.getUsername());
+        }
+        
+        if (StringUtils.isNotBlank(log.getLogType()))
+        {
+            wrapper.eq("log_type", log.getLogType());
+        }
+        return logDao.selectPage(new Page<Log>(pageNum, pageSize), wrapper.orderByDesc("id"));
     }
 }

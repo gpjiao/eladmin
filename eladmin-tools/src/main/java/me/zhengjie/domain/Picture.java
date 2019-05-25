@@ -1,53 +1,58 @@
 package me.zhengjie.domain;
 
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.*;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * sm.ms图床
  *
- * @author jie
+ * @author
  * @date 2018-12-27
  */
 @Data
-@Entity
-@Table(name = "picture")
-public class Picture implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@TableName("sys_picture")
+public class Picture implements Serializable
+{
+    
+    /**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 1L;
+    
     private Long id;
-
+    
     private String filename;
-
+    
     private String url;
-
-    private String size;
-
-    private String height;
-
-    private String width;
-
+    
+    private Long size;
+    
+    private Integer height;
+    
+    private Integer width;
+    
     /**
      * delete URl
      */
-    @Column(name = "delete_url")
-    private String delete;
-
+    @JSONField(serialize = false)
+    @TableField("delete_url")
+    private String deleteUrl;
+    
     private String username;
-
-    @CreationTimestamp
-    @Column(name = "create_time")
-    private Timestamp createTime;
-
+    
+    @TableField("create_time")
+    private Timestamp createTime = Timestamp.valueOf(LocalDateTime.now());
+    
     @Override
-    public String toString() {
-        return "Picture{" +
-                "filename='" + filename + '\'' +
-                '}';
+    public String toString()
+    {
+        return "Picture{" + "filename='" + filename + '\'' + '}';
     }
 }

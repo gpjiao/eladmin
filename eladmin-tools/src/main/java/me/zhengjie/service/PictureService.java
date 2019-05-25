@@ -1,39 +1,57 @@
 package me.zhengjie.service;
 
-import me.zhengjie.domain.Picture;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import me.zhengjie.domain.Picture;
+
 /**
- * @author jie
+ * @author
  * @date 2018-12-27
  */
 @CacheConfig(cacheNames = "picture")
-public interface PictureService {
-
+public interface PictureService
+{
+    
     /**
      * 上传图片
+     * 
      * @param file
      * @param username
      * @return
      */
     @CacheEvict(allEntries = true)
     Picture upload(MultipartFile file, String username);
-
+    
     /**
      * 根据ID查询
+     * 
      * @param id
      * @return
      */
     @Cacheable(key = "#p0")
     Picture findById(Long id);
-
+    
     /**
      * 删除图片
+     * 
      * @param picture
      */
     @CacheEvict(allEntries = true)
     void delete(Picture picture);
+    
+    /**
+     * 分页
+     * 
+     * @param pageNum
+     * @param pageSize
+     * @param picture
+     * @return
+     */
+    @Cacheable(keyGenerator = "keyGenerator")
+    IPage<Picture> findAll(Long pageNum, Long pageSize, Picture picture);
 }

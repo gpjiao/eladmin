@@ -1,63 +1,64 @@
 package me.zhengjie.modules.system.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * @author jie
+ * @author
  * @date 2018-12-17
  */
-@Entity
 @Getter
 @Setter
-@Table(name = "menu")
-public class Menu implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@TableName("sys_menu")
+public class Menu implements Serializable
+{
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    
     @NotNull(groups = {Update.class})
     private Long id;
-
+    
     @NotBlank
     private String name;
-
-    @Column(unique = true)
+    
     private Long sort;
-
-    @Column(name = "path")
+    
     private String path;
-
+    
     private String component;
-
+    
     private String icon;
-
+    
     /**
      * 上级菜单ID
      */
-    @Column(name = "pid",nullable = false)
     private Long pid;
-
+    
     /**
      * 是否为外链 true/false
      */
-    @Column(name = "i_frame")
+    @TableField("i_frame")
     private Boolean iFrame;
-
-    @ManyToMany(mappedBy = "menus")
-    @JsonIgnore
+    
+    @JSONField(serialize = false)
+    @TableField(exist = false)
     private Set<Role> roles;
-
-    @CreationTimestamp
-    @Column(name = "create_time")
-    private Timestamp createTime;
-
-    public interface Update{}
+    
+    @TableField("create_time")
+    private Timestamp createTime = Timestamp.valueOf(LocalDateTime.now());
+    
+    public interface Update
+    {
+    }
 }

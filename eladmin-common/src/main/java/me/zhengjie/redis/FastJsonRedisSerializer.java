@@ -1,6 +1,7 @@
 package me.zhengjie.redis;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
@@ -19,7 +20,13 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
 
     private Class<T> clazz;
 
-    public FastJsonRedisSerializer(Class<T> clazz) {
+    static
+    {
+        ParserConfig.getGlobalInstance().addAccept("com.baomidou.mybatisplus");
+    }
+    
+    public FastJsonRedisSerializer(Class<T> clazz)
+    {
         super();
         this.clazz = clazz;
     }

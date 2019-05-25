@@ -2,76 +2,76 @@ package me.zhengjie.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.*;
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
- * @author jie
+ * @author
  * @date 2018-11-24
  */
-@Entity
 @Data
-@Table(name = "log")
+@TableName("sys_log")
 @NoArgsConstructor
-public class Log {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Log
+{
+    
     private Long id;
-
+    
     /**
      * 操作用户
      */
     private String username;
-
+    
     /**
      * 描述
      */
     private String description;
-
+    
     /**
      * 方法名
      */
     private String method;
-
+    
     /**
      * 参数
      */
-    @Column(columnDefinition = "text")
     private String params;
-
+    
     /**
      * 日志类型
      */
-    @Column(name = "log_type")
+    @TableField("log_type")
     private String logType;
-
+    
     /**
      * 请求ip
      */
-    @Column(name = "request_ip")
+    @TableField("request_ip")
     private String requestIp;
-
+    
     /**
      * 请求耗时
      */
     private Long time;
-
+    
     /**
      * 异常详细
      */
-    @Column(name = "exception_detail", columnDefinition = "text")
+    @TableField("exception_detail")
     private String exceptionDetail;
-
+    
     /**
      * 创建日期
      */
-    @CreationTimestamp
-    @Column(name = "create_time")
-    private Timestamp createTime;
-
-    public Log(String logType, Long time) {
+    @TableField("create_time")
+    private Timestamp createTime = Timestamp.valueOf(LocalDateTime.now());
+    
+    public Log(String logType, Long time)
+    {
         this.logType = logType;
         this.time = time;
     }

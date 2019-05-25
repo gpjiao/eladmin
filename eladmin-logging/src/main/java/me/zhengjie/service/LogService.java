@@ -1,8 +1,11 @@
 package me.zhengjie.service;
 
-import me.zhengjie.domain.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.scheduling.annotation.Async;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import me.zhengjie.domain.Log;
 
 /**
  * @author jie
@@ -17,4 +20,15 @@ public interface LogService {
      */
     @Async
     void save(ProceedingJoinPoint joinPoint, Log log);
+    
+    /**
+     * 分页查询
+     * 
+     * @param pageNum
+     * @param pageSize
+     * @param log
+     * @return
+     */
+    IPage<Log> findAll(int pageNum, int pageSize, Log log);
+    
 }

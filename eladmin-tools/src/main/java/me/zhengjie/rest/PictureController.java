@@ -1,19 +1,23 @@
 package me.zhengjie.rest;
 
-import me.zhengjie.aop.log.Log;
-import me.zhengjie.domain.Picture;
-import me.zhengjie.service.PictureService;
-import me.zhengjie.service.query.PictureQueryService;
-import me.zhengjie.utils.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import me.zhengjie.aop.log.Log;
+import me.zhengjie.domain.Picture;
+import me.zhengjie.http.ApiResponse;
+import me.zhengjie.service.PictureService;
+import me.zhengjie.utils.SecurityContextHolder;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,52 +25,58 @@ import java.util.Map;
  * @date 2018/09/20 14:13:32
  */
 @RestController
-@RequestMapping("/api")
-public class PictureController {
-
+@RequestMapping("/admin")
+public class PictureController
+{
+    
     @Autowired
     private PictureService pictureService;
-
-    @Autowired
-    private PictureQueryService pictureQueryService;
-
+    
     @Log("查询图片")
     @PreAuthorize("hasAnyRole('ADMIN','PICTURE_ALL','PICTURE_SELECT')")
     @GetMapping(value = "/pictures")
-    public ResponseEntity getRoles(Picture resources, Pageable pageable){
-        return new ResponseEntity(pictureQueryService.queryAll(resources,pageable),HttpStatus.OK);
+    public ApiResponse<List<Picture>> getRoles(Picture resources, Pageable pageable)
+    {
+        IPage<Picture> page =
+            pictureService.findAll((long)pageable.getPageNumber(), (long)pageable.getPageSize(), resources);
+        return ApiResponse.code(HttpStatus.OK).i18n("msg.operation.success").page(page);
     }
-
+    
     /**
-     * 上传图片
+     * 
+     * @title 上传图片
+     * @description <功能详细描述>
      * @param file
      * @return
-     * @throws Exception
      */
     @Log("上传图片")
     @PreAuthorize("hasAnyRole('ADMIN','PICTURE_ALL','PICTURE_UPLOAD')")
     @PostMapping(value = "/pictures")
-    public ResponseEntity upload(@RequestParam MultipartFile file){
+    public ApiResponse<Map<String, Object>> upload(@RequestParam MultipartFile file)
+    {
         UserDetails userDetails = SecurityContextHolder.getUserDetails();
         String userName = userDetails.getUsername();
-        Picture picture = pictureService.upload(file,userName);
-        Map map = new HashMap();
-        map.put("errno",0);
-        map.put("id",picture.getId());
-        map.put("data",new String[]{picture.getUrl()});
-        return new ResponseEntity(map,HttpStatus.OK);
+        Picture picture = pictureService.upload(file, userName);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("errno", 0);
+        map.put("id", picture.getId());
+        map.put("data", new String[] {picture.getUrl()});
+        return ApiResponse.code(HttpStatus.OK).i18n("msg.operation.add.success").body(map);
     }
-
+    
     /**
-     * 删除图片
+     * 
+     * @title 删除图片
+     * @description <功能详细描述>
      * @param id
      * @return
      */
     @Log("删除图片")
     @PreAuthorize("hasAnyRole('ADMIN','PICTURE_ALL','PICTURE_DELETE')")
     @DeleteMapping(value = "/pictures/{id}")
-    public ResponseEntity delete(@PathVariable Long id) {
+    public ApiResponse<?> delete(@PathVariable Long id)
+    {
         pictureService.delete(pictureService.findById(id));
-        return new ResponseEntity(HttpStatus.OK);
+        return ApiResponse.code(HttpStatus.OK).i18n("msg.operation.delete.success").build();
     }
 }

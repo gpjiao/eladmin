@@ -1,15 +1,19 @@
 package me.zhengjie.rest;
 
-import cn.hutool.core.util.PageUtil;
-import me.zhengjie.domain.vo.ColumnInfo;
-import me.zhengjie.exception.BadRequestException;
-import me.zhengjie.service.GenConfigService;
-import me.zhengjie.service.GeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import me.zhengjie.domain.vo.TableField;
+import me.zhengjie.domain.vo.TableInfo;
+import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.http.ApiResponse;
+import me.zhengjie.service.GenConfigService;
+import me.zhengjie.service.GeneratorService;
+
 import java.util.List;
 
 /**
@@ -37,11 +41,11 @@ public class GeneratorController {
      * @return
      */
     @GetMapping(value = "/generator/tables")
-    public ResponseEntity getTables(@RequestParam(defaultValue = "") String name,
-                                   @RequestParam(defaultValue = "0")Integer page,
-                                   @RequestParam(defaultValue = "10")Integer size){
-        int[] startEnd = PageUtil.transToStartEnd(page+1, size);
-        return new ResponseEntity(generatorService.getTables(name,startEnd), HttpStatus.OK);
+    public ApiResponse<List<TableInfo>> getTables(@RequestParam(defaultValue = "") String name,
+        @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size)
+    {
+        IPage<TableInfo> iPage = generatorService.listTables(page, size, name);
+        return ApiResponse.code(HttpStatus.OK).page(iPage);
     }
 
     /**
@@ -50,8 +54,10 @@ public class GeneratorController {
      * @return
      */
     @GetMapping(value = "/generator/columns")
-    public ResponseEntity getTables(@RequestParam String tableName){
-        return new ResponseEntity(generatorService.getColumns(tableName), HttpStatus.OK);
+    public ApiResponse<List<TableField>> getTables(@RequestParam String tableName)
+    {
+        List<TableField> records = generatorService.listFields(tableName);
+        return ApiResponse.code(HttpStatus.OK).body(records);
     }
 
     /**
@@ -60,11 +66,13 @@ public class GeneratorController {
      * @return
      */
     @PostMapping(value = "/generator")
-    public ResponseEntity generator(@RequestBody List<ColumnInfo> columnInfos, @RequestParam String tableName){
-        if(!generatorEnabled){
+    public ApiResponse<?> generator(@RequestBody List<TableField> columnInfos, @RequestParam String tableName)
+    {
+        if (!generatorEnabled)
+        {
             throw new BadRequestException("此环境不允许生成代码！");
         }
-        generatorService.generator(columnInfos,genConfigService.find(),tableName);
-        return new ResponseEntity(HttpStatus.OK);
+        generatorService.generator(columnInfos, genConfigService.find(), tableName);
+        return ApiResponse.code(HttpStatus.OK).build();
     }
 }

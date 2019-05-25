@@ -1,10 +1,6 @@
 package me.zhengjie.aspect;
 
-import lombok.extern.slf4j.Slf4j;
-import me.zhengjie.domain.Log;
-import me.zhengjie.exception.BadRequestException;
-import me.zhengjie.service.LogService;
-import me.zhengjie.utils.ThrowableUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -12,7 +8,11 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import me.zhengjie.domain.Log;
+import me.zhengjie.service.LogService;
 
 /**
  * @author jie
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Aspect
-@Slf4j
+@Order(2)
 public class LogAspect {
 
     @Autowired
@@ -40,17 +40,16 @@ public class LogAspect {
      * 配置环绕通知,使用在方法logPointcut()上注册的切入点
      *
      * @param joinPoint join point for advice
+     * @throws Throwable
      */
     @Around("logPointcut()")
-    public Object logAround(ProceedingJoinPoint joinPoint){
+    public Object logAround(ProceedingJoinPoint joinPoint)
+        throws Throwable
+    {
         Object result = null;
         currentTime = System.currentTimeMillis();
-        try {
-            result = joinPoint.proceed();
-        } catch (Throwable e) {
-            throw new BadRequestException(e.getMessage());
-        }
-        Log log = new Log("INFO",System.currentTimeMillis() - currentTime);
+        result = joinPoint.proceed();
+        Log log = new Log("INFO", System.currentTimeMillis() - currentTime);
         logService.save(joinPoint, log);
         return result;
     }
@@ -64,7 +63,7 @@ public class LogAspect {
     @AfterThrowing(pointcut = "logPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         Log log = new Log("ERROR",System.currentTimeMillis() - currentTime);
-        log.setExceptionDetail(ThrowableUtil.getStackTrace(e));
+        log.setExceptionDetail(ExceptionUtils.getStackTrace(e));
         logService.save((ProceedingJoinPoint)joinPoint, log);
     }
 }
