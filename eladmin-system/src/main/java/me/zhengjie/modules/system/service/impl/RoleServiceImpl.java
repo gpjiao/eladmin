@@ -1,18 +1,22 @@
 package me.zhengjie.modules.system.service.impl;
 
+import me.zhengjie.modules.system.domain.Menu;
 import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.exception.EntityExistException;
 import me.zhengjie.modules.system.repository.RoleRepository;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.dto.RoleDTO;
+import me.zhengjie.modules.system.service.dto.RoleSmallDTO;
 import me.zhengjie.modules.system.service.mapper.RoleMapper;
+import me.zhengjie.modules.system.service.mapper.RoleSmallMapper;
 import me.zhengjie.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author jie
@@ -27,6 +31,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private RoleSmallMapper roleSmallMapper;
 
     @Override
     public RoleDTO findById(long id) {
@@ -61,6 +68,9 @@ public class RoleServiceImpl implements RoleService {
 
         role.setName(resources.getName());
         role.setRemark(resources.getRemark());
+        role.setDataScope(resources.getDataScope());
+        role.setDepts(resources.getDepts());
+        role.setLevel(resources.getLevel());
         roleRepository.save(role);
     }
 
@@ -79,28 +89,32 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public void untiedMenu(Menu menu) {
+        Set<Role> roles = roleRepository.findByMenus_Id(menu.getId());
+        for (Role role : roles) {
+            menu.getRoles().remove(role);
+            role.getMenus().remove(menu);
+            roleRepository.save(role);
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         roleRepository.deleteById(id);
     }
 
     @Override
-    public Object getRoleTree() {
-
-        List<Role> roleList = roleRepository.findAll();
-
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (Role role : roleList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id",role.getId());
-            map.put("label",role.getName());
-            list.add(map);
-        }
-        return list;
+    public List<RoleSmallDTO> findByUsers_Id(Long id) {
+        return roleSmallMapper.toDto(roleRepository.findByUsers_Id(id).stream().collect(Collectors.toList()));
     }
 
     @Override
-    public Set<Role> findByUsers_Id(Long id) {
-        return roleRepository.findByUsers_Id(id);
+    public Integer findByRoles(Set<Role> roles) {
+        Set<RoleDTO> roleDTOS = new HashSet<>();
+        for (Role role : roles) {
+            roleDTOS.add(findById(role.getId()));
+        }
+        return Collections.min(roleDTOS.stream().map(RoleDTO::getLevel).collect(Collectors.toList()));
     }
 }

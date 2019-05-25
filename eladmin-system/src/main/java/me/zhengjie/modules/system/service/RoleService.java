@@ -1,11 +1,14 @@
 package me.zhengjie.modules.system.service;
 
+import me.zhengjie.modules.system.domain.Menu;
 import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.modules.system.service.dto.RoleDTO;
+import me.zhengjie.modules.system.service.dto.RoleSmallDTO;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,18 +49,16 @@ public interface RoleService {
     void delete(Long id);
 
     /**
-     * role tree
-     * @return
-     */
-    @Cacheable(key = "'tree'")
-    Object getRoleTree();
-
-    /**
+     * key的名称如有修改，请同步修改 UserServiceImpl 中的 update 方法
      * findByUsers_Id
      * @param id
      * @return
      */
-    Set<Role> findByUsers_Id(Long id);
+    @Cacheable(key = "'findByUsers_Id:' + #p0")
+    List<RoleSmallDTO> findByUsers_Id(Long id);
+
+    @Cacheable(keyGenerator = "keyGenerator")
+    Integer findByRoles(Set<Role> roles);
 
     /**
      * updatePermission
@@ -74,4 +75,7 @@ public interface RoleService {
      */
     @CacheEvict(allEntries = true)
     void updateMenu(Role resources, RoleDTO roleDTO);
+
+    @CacheEvict(allEntries = true)
+    void untiedMenu(Menu menu);
 }

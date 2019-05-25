@@ -24,6 +24,8 @@ public class UserDTO implements Serializable {
 
     private String email;
 
+    private String phone;
+
     private Boolean enabled;
 
     @JsonIgnore
@@ -34,5 +36,12 @@ public class UserDTO implements Serializable {
     private Date lastPasswordResetTime;
 
     @ApiModelProperty(hidden = true)
-    private Set<RoleDTO> roles;
+    private Set<RoleSmallDTO> roles;
+
+    @ApiModelProperty(hidden = true)
+    private JobDTO job;
+
+    private DeptDTO dept;
+
+    private Long deptId;
 }

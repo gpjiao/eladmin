@@ -1,18 +1,29 @@
 package me.zhengjie.modules.system.rest;
 
+import cn.hutool.core.lang.Dict;
 import me.zhengjie.aop.log.Log;
 import me.zhengjie.modules.system.domain.Role;
 import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.service.RoleService;
 import me.zhengjie.modules.system.service.dto.RoleDTO;
+import me.zhengjie.modules.system.service.dto.RoleSmallDTO;
 import me.zhengjie.modules.system.service.query.RoleQueryService;
+import me.zhengjie.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author jie
@@ -30,6 +41,11 @@ public class RoleController {
 
     private static final String ENTITY_NAME = "role";
 
+    /**
+     * 获取单个role
+     * @param id
+     * @return
+     */
     @GetMapping(value = "/roles/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','ROLES_ALL','ROLES_SELECT')")
     public ResponseEntity getRoles(@PathVariable Long id){
@@ -40,10 +56,11 @@ public class RoleController {
      * 返回全部的角色，新增用户时下拉选择
      * @return
      */
-    @GetMapping(value = "/roles/tree")
-    @PreAuthorize("hasAnyRole('ADMIN','ROLES_ALL','USER_ALL','USER_SELECT')")
-    public ResponseEntity getRoleTree(){
-        return new ResponseEntity(roleService.getRoleTree(),HttpStatus.OK);
+    @GetMapping(value = "/roles/all")
+    @PreAuthorize("hasAnyRole('ADMIN','ROLES_ALL','USER_ALL','USER_CREATE','USER_EDIT')")
+    public ResponseEntity getAll(@PageableDefault(value = 2000, sort = {"level"}, direction = Sort.Direction.ASC) Pageable pageable){
+
+        return new ResponseEntity(roleQueryService.queryAll(pageable),HttpStatus.OK);
     }
 
     @Log("查询角色")
@@ -51,6 +68,12 @@ public class RoleController {
     @PreAuthorize("hasAnyRole('ADMIN','ROLES_ALL','ROLES_SELECT')")
     public ResponseEntity getRoles(@RequestParam(required = false) String name,  Pageable pageable){
         return new ResponseEntity(roleQueryService.queryAll(name,pageable),HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/roles/level")
+    public ResponseEntity getLevel(){
+        List<Integer> levels = roleService.findByUsers_Id(SecurityUtils.getUserId()).stream().map(RoleSmallDTO::getLevel).collect(Collectors.toList());
+        return new ResponseEntity(Dict.create().set("level", Collections.min(levels)),HttpStatus.OK);
     }
 
     @Log("新增角色")

@@ -19,7 +19,7 @@ public interface QiNiuService {
      * 查配置
      * @return
      */
-    @Cacheable(key = "'1'")
+    @Cacheable(cacheNames = "qiNiuConfig", key = "'1'")
     QiniuConfig find();
 
     /**
@@ -27,7 +27,7 @@ public interface QiNiuService {
      * @param qiniuConfig
      * @return
      */
-    @CachePut(key = "'1'")
+    @CachePut(cacheNames = "qiNiuConfig", key = "'1'")
     QiniuConfig update(QiniuConfig qiniuConfig);
 
     /**
@@ -69,4 +69,12 @@ public interface QiNiuService {
      */
     @CacheEvict(allEntries = true)
     void synchronize(QiniuConfig config);
+
+    /**
+     * 删除文件
+     * @param ids
+     * @return
+     */
+    @CacheEvict(allEntries = true)
+    void deleteAll(Long[] ids, QiniuConfig config);
 }

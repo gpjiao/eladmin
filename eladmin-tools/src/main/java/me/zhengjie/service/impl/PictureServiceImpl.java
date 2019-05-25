@@ -58,7 +58,7 @@ public class PictureServiceImpl implements PictureService {
         picture = JSON.parseObject(jsonObject.get("data").toString(), Picture.class);
         picture.setSize(FileUtil.getSize(Integer.valueOf(picture.getSize())));
         picture.setUsername(username);
-        picture.setFilename(FileUtil.getFileNameNoEx(multipartFile.getOriginalFilename())+FileUtil.getExtensionName(multipartFile.getOriginalFilename()));
+        picture.setFilename(FileUtil.getFileNameNoEx(multipartFile.getOriginalFilename())+"."+FileUtil.getExtensionName(multipartFile.getOriginalFilename()));
         pictureRepository.save(picture);
         //删除临时文件
         FileUtil.deleteFile(file);
@@ -83,5 +83,12 @@ public class PictureServiceImpl implements PictureService {
             pictureRepository.delete(picture);
         }
 
+    }
+
+    @Override
+    public void deleteAll(Long[] ids) {
+        for (Long id : ids) {
+            delete(findById(id));
+        }
     }
 }

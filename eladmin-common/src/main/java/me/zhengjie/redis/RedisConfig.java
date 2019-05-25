@@ -19,7 +19,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import java.time.Duration;
@@ -31,6 +30,7 @@ import java.time.Duration;
 @Slf4j
 @Configuration
 @EnableCaching
+// 自动配置
 @ConditionalOnClass(RedisOperations.class)
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisConfig extends CachingConfigurerSupport {
@@ -53,6 +53,9 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Value("${spring.redis.password}")
     private String password;
 
+    @Value("${spring.redis.database}")
+    private int database;
+
     /**
      * 配置 redis 连接池
      * @return
@@ -62,11 +65,8 @@ public class RedisConfig extends CachingConfigurerSupport {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxIdle(maxIdle);
         jedisPoolConfig.setMaxWaitMillis(maxWaitMillis);
-        if (StringUtils.isNotBlank(password)) {
-            return new JedisPool(jedisPoolConfig, host, port, timeout, password);
-        } else {
-            return new JedisPool(jedisPoolConfig, host, port,timeout);
-        }
+        String pwd = StringUtils.isBlank(password) ? null : password;
+        return new JedisPool(jedisPoolConfig, host, port, timeout, pwd, database);
     }
 
     /**
@@ -91,6 +91,7 @@ public class RedisConfig extends CachingConfigurerSupport {
         // value值的序列化采用fastJsonRedisSerializer
         template.setValueSerializer(fastJsonRedisSerializer);
         template.setHashValueSerializer(fastJsonRedisSerializer);
+
         // 全局开启AutoType，不建议使用
         // ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
         // 建议使用这种方式，小范围指定白名单

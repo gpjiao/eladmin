@@ -1,8 +1,8 @@
-package me.zhengjie.util;
+package me.zhengjie.utils;
 
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
-import me.zhengjie.utils.FileUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -52,6 +52,7 @@ public class QiNiuUtil {
         StringBuffer key = new StringBuffer(FileUtil.getFileNameNoEx(file));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         Date date = new Date();
+        key.append("-");
         key.append(sdf.format(date));
         key.append(".");
         key.append(FileUtil.getExtensionName(file));

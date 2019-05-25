@@ -32,8 +32,6 @@ spring:
       stat-view-servlet:
         url-pattern: /druid/*
         reset-enable: false
-        login-username: admin
-        login-password: 123456
 
       web-stat-filter:
         url-pattern: /*
@@ -59,4 +57,8 @@ jwt:
 
 #是否允许生成代码，生产环境设置为false
 generator:
+  enabled: true
+
+#是否开启 swagger-ui
+swagger:
   enabled: true

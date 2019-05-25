@@ -1,17 +1,16 @@
 package me.zhengjie.service.impl;
 
+import cn.hutool.core.lang.Dict;
 import cn.hutool.json.JSONObject;
 import me.zhengjie.domain.Log;
 import me.zhengjie.repository.LogRepository;
 import me.zhengjie.service.LogService;
 import me.zhengjie.utils.RequestHolder;
-import me.zhengjie.utils.SecurityContextHolder;
+import me.zhengjie.utils.SecurityUtils;
 import me.zhengjie.utils.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +27,6 @@ public class LogServiceImpl implements LogService {
 
     @Autowired
     private LogRepository logRepository;
-
-    @Value("${jwt.header}")
-    private String tokenHeader;
 
     private final String LOGINPATH = "login";
 
@@ -70,8 +66,7 @@ public class LogServiceImpl implements LogService {
         log.setRequestIp(StringUtils.getIP(request));
 
         if(!LOGINPATH.equals(signature.getName())){
-            UserDetails userDetails = SecurityContextHolder.getUserDetails();
-            username = userDetails.getUsername();
+            username = SecurityUtils.getUsername();
         } else {
             try {
                 JSONObject jsonObject = new JSONObject(argValues[0]);
@@ -84,5 +79,10 @@ public class LogServiceImpl implements LogService {
         log.setUsername(username);
         log.setParams(params + " }");
         logRepository.save(log);
+    }
+
+    @Override
+    public Object findByErrDetail(Long id) {
+        return Dict.create().set("exception",logRepository.findExceptionById(id));
     }
 }

@@ -16,11 +16,17 @@ public class RoleDTO implements Serializable {
 
     private String name;
 
+    private String dataScope;
+
+    private Integer level;
+
     private String remark;
 
     private Set<PermissionDTO> permissions;
 
     private Set<MenuDTO> menus;
+
+    private Set<DeptDTO> depts;
 
     private Timestamp createTime;
 }
